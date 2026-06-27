@@ -1,35 +1,40 @@
-# Implementation Details
+# Chi tiết Kiến trúc & Triển khai Kỹ thuật
 
 > [!NOTE]
-> This documentation may contain AI-generated content. While we strive for accuracy, there might be inaccuracies. Please report any issues via:
->
-> - [GitHub Issues](https://github.com/funstory-ai/yadt/issues)
-> - Community contribution (PRs welcome!)
+> Tài liệu kỹ thuật này mô tả sâu các giai đoạn xử lý cốt lõi bên trong hệ thống dịch thuật giữ nguyên bố cục.
 
-## Core Processing Flow
+## Luồng Xử lý Cốt lõi (Core Processing Flow)
 
-Main processing stages in order of actual execution and corresponding documentation:
+Các giai đoạn xử lý chính theo thứ tự thực thi thực tế của hệ thống:
 
-1. [PDFParser.md](PDFParsing/PDFParsing.md): **PDF Parsing and Intermediate Layer Creation**
+1. **Phân tích PDF & Tạo tầng trung gian:** Chi tiết cơ chế xem tại [PDFParsing.md](PDFParsing/PDFParsing.md)
+   * Trích xuất các đối tượng hình học, ký tự, font chữ và hình ảnh từ tệp PDF gốc để chuyển đổi thành ngôn ngữ trung gian (IL).
 
-2. [LayoutParser](https://github.com/funstory-ai/yadt/blob/main/yadt/document_il/midend/layout_parser.py): **Layout OCR**
+2. **Nhận diện Layout OCR (Layout OCR):**
+   * Sử dụng MinerU 2.5 Pro (hoặc mô hình ONNX tích hợp sẵn) để phân tích các khối văn bản (text blocks), cột báo chí, vị trí đặt bảng biểu và công thức toán học.
 
-3. [ParagraphFinding.md](ParagraphFinding/ParagraphFinding.md): **Paragraph Recognition**
+3. **Nhóm dòng thành Đoạn văn:** Chi tiết cơ chế xem tại [ParagraphFinding.md](ParagraphFinding/ParagraphFinding.md)
+   * Ghép nối các dòng văn bản rời rạc từ PDF thành các đoạn văn hoàn chỉnh có nghĩa để gửi đến LLM dịch chuẩn văn cảnh.
 
-4. [StylesAndFormulas.md](StylesAndFormulas/StylesAndFormulas.md): **Style and Formula Processing**
+4. **Xử lý Định dạng & Công thức:** Chi tiết cơ chế xem tại [StylesAndFormulas.md](StylesAndFormulas/StylesAndFormulas.md)
+   * Bảo toàn các công thức toán học LaTeX, các chữ in đậm, in nghiêng hoặc màu sắc khác nhau trong cùng một đoạn văn.
 
-5. [ILTranslator.md](ILTranslator/ILTranslator.md): **Intermediate Layer Translation**
+5. **Dịch thuật Tầng Trung gian:** Chi tiết cơ chế xem tại [ILTranslator.md](ILTranslator/ILTranslator.md)
+   * Gửi nội dung đã được chuẩn hóa định dạng và đoạn văn sang mô hình ngôn ngữ lớn (Ollama) để dịch sang ngôn ngữ đích.
 
-6. [Typesetting.md](Typesetting/Typesetting.md): **Typesetting Processing**
+6. **Phân bổ và Dàn trang (Typesetting):** Chi tiết cơ chế xem tại [Typesetting.md](Typesetting/Typesetting.md)
+   * Tính toán kích thước từ chữ dịch sang (vốn có thể dài/ngắn hơn từ gốc) để co giãn size chữ phù hợp với khoảng trống Bounding Box cũ.
 
-7. [FontMapper](https://github.com/funstory-ai/yadt/blob/main/yadt/document_il/utils/fontmap.py): **Font Mapping**
+7. **Bản đồ Font chữ (Font Mapping):**
+   * Tự động lựa chọn font chữ tiếng Việt thích hợp (hỗ trợ Unicode tiếng Việt đầy đủ) để thay thế cho font gốc bị thiếu hoặc không hỗ trợ tiếng Việt.
 
-8. [PDFCreation.md](PDFCreation/PDFCreation.md): **PDF Generation**
+8. **Tái tạo tệp PDF Đích:** Chi tiết cơ chế xem tại [PDFCreation.md](PDFCreation/PDFCreation.md)
+   * Vẽ lại các phần tử văn bản mới đã dịch, hình ảnh, đường nét biểu đồ vào tệp PDF kết quả.
 
-## API
+## API Dịch Bất Đối Xứng
 
-1. [Async Translation API](AsyncTranslate/AsyncTranslate.md): **Async Translation API**
+1. **Async Translation API:** Chi tiết xem tại [AsyncTranslate.md](AsyncTranslate/AsyncTranslate.md)
+   * Cách thiết lập cơ chế gọi hàm dạng Async Generator để cập nhật tiến trình dịch theo thời gian thực (real-time progress).
 
 > [!TIP]
->
-> Click on document links to view detailed implementation principles and configuration options
+> Click vào các liên kết tài liệu ở trên để xem chi tiết nguyên lý hoạt động và các tùy chọn cấu hình nâng cao.
