@@ -1,15 +1,15 @@
 [project]
-name = "BabelDOC"
-version = "0.6.2"
-description = "Yet Another Document Translator"
+name = "doctranslate"
+version = "0.1.0"
+description = "Local Document Conversion & Translation System"
 license = "AGPL-3.0"
 readme = "README.md"
 requires-python = ">=3.10,<3.14"
 authors = [
-    { name = "awwaawwa", email = "aw@funstory.ai" }
+    { name = "nhmanhDev", email = "nhmanhDev@gmail.com" }
 ]
 maintainers = [
-    { name = "awwaawwa", email = "aw@funstory.ai" }
+    { name = "nhmanhDev", email = "nhmanhDev@gmail.com" }
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
