@@ -58,12 +58,14 @@ tasks_db: Dict[str, Dict[str, Any]] = {}
 class SettingsModel(BaseModel):
     ollama_model: str = "qwen2.5:8b"
     ollama_url: str = "http://localhost:11434/v1"
+    api_key: Optional[str] = "ollama"
     mineru_api: Optional[str] = None
 
 # Default settings
 global_settings = {
     "ollama_model": "qwen2.5:8b",
     "ollama_url": "http://localhost:11434/v1",
+    "api_key": "ollama",
     "mineru_api": ""
 }
 
@@ -75,6 +77,7 @@ def get_settings():
 def save_settings(settings: SettingsModel):
     global_settings["ollama_model"] = settings.ollama_model
     global_settings["ollama_url"] = settings.ollama_url
+    global_settings["api_key"] = settings.api_key or "ollama"
     global_settings["mineru_api"] = settings.mineru_api or ""
     return {"status": "success", "settings": global_settings}
 
@@ -89,7 +92,7 @@ def list_tasks():
     # Return tasks sorted by timestamp or ID
     return [{"id": k, **v} for k, v in tasks_db.items()]
 
-async def run_pdf_translation(task_id: str, input_path: str, lang_in: str, lang_out: str, mode: str, ollama_model: str, ollama_url: str, mineru_api: str):
+async def run_pdf_translation(task_id: str, input_path: str, lang_in: str, lang_out: str, mode: str, ollama_model: str, ollama_url: str, api_key: str, mineru_api: str):
     """Asynchronously execute PDF translation via BabelDOC."""
     try:
         tasks_db[task_id]["stage"] = "parsing"
@@ -101,7 +104,7 @@ async def run_pdf_translation(task_id: str, input_path: str, lang_in: str, lang_
             lang_out=lang_out,
             model=ollama_model,
             base_url=ollama_url,
-            api_key="ollama",
+            api_key=api_key,
             ignore_cache=True,
         )
 
@@ -176,7 +179,7 @@ async def run_pdf_translation(task_id: str, input_path: str, lang_in: str, lang_
         tasks_db[task_id]["status"] = "error"
         tasks_db[task_id]["error"] = str(e)
 
-def run_reflowable_translation(task_id: str, input_path: str, lang_in: str, lang_out: str, mode: str, ollama_model: str, ollama_url: str):
+def run_reflowable_translation(task_id: str, input_path: str, lang_in: str, lang_out: str, mode: str, ollama_model: str, ollama_url: str, api_key: str):
     """Synchronously runs translation for reflowable formats in a background thread."""
     try:
         tasks_db[task_id]["stage"] = "parsing"
@@ -230,6 +233,7 @@ def run_reflowable_translation(task_id: str, input_path: str, lang_in: str, lang
         translator = OllamaTranslator(
             model_name=ollama_model,
             base_url=ollama_url,
+            api_key=api_key,
             lang_in=lang_in,
             lang_out=lang_out,
         )
@@ -286,11 +290,13 @@ def translate_file_endpoint(
     mode: str = Form("both"),  # "mono", "dual", "both"
     ollama_model: Optional[str] = Form(None),
     ollama_url: Optional[str] = Form(None),
+    api_key: Optional[str] = Form(None),
     mineru_api: Optional[str] = Form(None),
 ):
     # Determine settings
     model = ollama_model if ollama_model else global_settings["ollama_model"]
     url = ollama_url if ollama_url else global_settings["ollama_url"]
+    key = api_key if api_key else global_settings["api_key"]
     m_api = mineru_api if mineru_api is not None else global_settings["mineru_api"]
 
     # Generate task ID
@@ -323,12 +329,12 @@ def translate_file_endpoint(
     if ext == ".pdf":
         background_tasks.add_task(
             lambda: asyncio.run(
-                run_pdf_translation(task_id, str(input_path), lang_in, lang_out, mode, model, url, m_api)
+                run_pdf_translation(task_id, str(input_path), lang_in, lang_out, mode, model, url, key, m_api)
             )
         )
     else:
         background_tasks.add_task(
-            run_reflowable_translation, task_id, str(input_path), lang_in, lang_out, mode, model, url
+            run_reflowable_translation, task_id, str(input_path), lang_in, lang_out, mode, model, url, key
         )
 
     return {"status": "success", "task_id": task_id}

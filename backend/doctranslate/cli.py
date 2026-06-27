@@ -41,7 +41,7 @@ async def translate_pdf_file(file_path: str, args):
         lang_out=args.lang_out,
         model=args.ollama_model,
         base_url=args.ollama_url,
-        api_key="ollama",
+        api_key=args.api_key,
         ignore_cache=True,
     )
     
@@ -128,6 +128,7 @@ def translate_reflowable_file(file_path: str, args):
     translator = OllamaTranslator(
         model_name=args.ollama_model,
         base_url=args.ollama_url,
+        api_key=args.api_key,
         lang_in=args.lang_in,
         lang_out=args.lang_out,
     )
@@ -246,6 +247,7 @@ def main():
     translate_parser.add_argument("--mode", choices=["mono", "dual", "both"], default="both", help="Output layout: mono, dual, or both (default: both).")
     translate_parser.add_argument("--ollama-model", default="qwen2.5:8b", help="Local Ollama model name (default: qwen2.5:8b).")
     translate_parser.add_argument("--ollama-url", default="http://localhost:11434/v1", help="Ollama API base URL (default: http://localhost:11434/v1).")
+    translate_parser.add_argument("--api-key", default="ollama", help="API key for local model server (e.g. Unsloth sk-unsloth-...).")
     translate_parser.add_argument("--mineru-api", help="Optional URL to a local MinerU API server (e.g. http://localhost:8000/parse).")
     translate_parser.add_argument("--debug", action="store_true", help="Enable debug logging.")
 
