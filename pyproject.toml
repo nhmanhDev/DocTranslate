@@ -52,6 +52,12 @@ dependencies = [
     "scipy>=1.15.3",
     "uharfbuzz>=0.50.2",
     "scikit-learn>=1.7.1",
+    "python-docx>=1.1.2",
+    "python-pptx>=1.0.2",
+    "ebooklib>=0.18",
+    "beautifulsoup4>=4.12.3",
+    "lxml>=5.2.2",
+    "ollama>=0.2.1",
 ]
 
 [project.optional-dependencies]
@@ -65,6 +71,7 @@ Issues = "https://github.com/funstory-ai/BabelDOC/issues"
 
 [project.scripts]
 babeldoc = "babeldoc.main:cli"
+doctranslate = "doctranslate.cli:main"
 
 [build-system]
 requires = ["hatchling"]
